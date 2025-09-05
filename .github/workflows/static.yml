@@ -23,16 +23,22 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm'   # troque para 'npm' se usar npm
+          cache: 'npm'
 
-      - run: pnpm install --frozen-lockfile || npm ci
+      # Instala usando npm ci se houver package-lock.json; senão cai para npm install
+      - name: Install deps
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
 
-      # Ajuste o base-href:
-      #   - "/<nome-do-repo>/" se repo = projeto normal
-      #   - "/" se repo = seuuser.github.io
-      - run: npx ng build --configuration production --base-href "/<nome-do-repo>/"
+      # Build SPA (ajuste o base-href se seu repo mudar)
+      - name: Build Angular
+        run: npx ng build --configuration production --base-href "/radar-aps/"
 
-      # Angular 17+ com SSR padrão gera /browser; se seu projeto NÃO tiver SSR, use dist/<projeto>
+      # Detecta onde o Angular gerou (SSR vs SPA)
       - name: Detect dist path
         id: dist
         shell: bash
@@ -44,7 +50,7 @@ jobs:
             echo "path=dist/$PROJECT" >> $GITHUB_OUTPUT
           fi
 
-      # SPA fallback: copia index.html para 404.html para funcionar refresh em rotas
+      # Fallback para rotas no refresh (SPA)
       - name: SPA 404 fallback
         run: |
           cp "${{ steps.dist.outputs.path }}/index.html" "${{ steps.dist.outputs.path }}/404.html"
