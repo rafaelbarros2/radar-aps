@@ -25,7 +25,6 @@ jobs:
           node-version: 20
           cache: 'npm'
 
-      # Instala usando npm ci se houver package-lock.json; senão cai para npm install
       - name: Install deps
         run: |
           if [ -f package-lock.json ]; then
@@ -34,26 +33,40 @@ jobs:
             npm install
           fi
 
-      # Build SPA (ajuste o base-href se seu repo mudar)
+      # Ajuste o base-href ao nome do seu repo
       - name: Build Angular
         run: npx ng build --configuration production --base-href "/radar-aps/"
 
-      # Detecta onde o Angular gerou (SSR vs SPA)
+      # Descobre a pasta correta do build (SSR vs SPA)
       - name: Detect dist path
         id: dist
         shell: bash
         run: |
-          PROJECT=$(node -e "console.log(Object.keys(require('./angular.json').projects)[0])")
+          PROJECT=$(node -e "const a=require('./angular.json');console.log(Object.keys(a.projects).find(p=>a.projects[p].projectType==='application')||Object.keys(a.projects)[0])")
           if [ -d "dist/$PROJECT/browser" ]; then
             echo "path=dist/$PROJECT/browser" >> $GITHUB_OUTPUT
-          else
+          elif [ -d "dist/$PROJECT" ]; then
             echo "path=dist/$PROJECT" >> $GITHUB_OUTPUT
+          else
+            echo "Nenhuma pasta dist encontrada. Conteúdo de dist/:" && ls -R dist || true
+            exit 1
           fi
 
-      # Fallback para rotas no refresh (SPA)
+      # (opcional) Mostra o conteúdo para depuração
+      - name: Show build output
+        run: ls -la "${{ steps.dist.outputs.path }}"
+
+      # SPA fallback seguro (só copia se existir index.html)
       - name: SPA 404 fallback
+        shell: bash
         run: |
-          cp "${{ steps.dist.outputs.path }}/index.html" "${{ steps.dist.outputs.path }}/404.html"
+          if [ -f "${{ steps.dist.outputs.path }}/index.html" ]; then
+            cp "${{ steps.dist.outputs.path }}/index.html" "${{ steps.dist.outputs.path }}/404.html"
+          else
+            echo "index.html não encontrado em ${{ steps.dist.outputs.path }}"
+            ls -R dist || true
+            exit 1
+          fi
 
       - uses: actions/upload-pages-artifact@v3
         with:
