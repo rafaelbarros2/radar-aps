@@ -31,9 +31,11 @@ jobs:
 
       - name: Build Angular
         run: |
-          npx ng build --configuration production
-          # Se for repositório em subpasta no GitHub Pages, adicione:
-          # npx ng build --configuration production --base-href "/<repo>/"
+          npx ng build --configuration production --base-href "/radar-aps/"
+
+      # >>> ESSENCIAL para Pages
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
 
       - name: Resolve dist path (radar-aps)
         id: distpath
@@ -41,7 +43,6 @@ jobs:
         run: |
           set -euo pipefail
           DIST_DIR="dist/radar-aps"
-
           if [ -d "$DIST_DIR/browser" ]; then
             FINAL="$DIST_DIR/browser"
           elif [ -d "$DIST_DIR" ]; then
@@ -51,7 +52,6 @@ jobs:
             ls -R dist || true
             exit 1
           fi
-
           echo "path=$FINAL" >> "$GITHUB_OUTPUT"
           echo "Detected dist path: $FINAL"
 
