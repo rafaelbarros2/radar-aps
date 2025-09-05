@@ -37,24 +37,23 @@ jobs:
       - name: Build Angular
         run: npx ng build --configuration production --base-href "/radar-aps/"
 
-      # Detecta a pasta correta lendo o angular.json
-      - name: Detect dist path
+      # Detecta a pasta correta do build
+      - name: Set dist path
         id: dist
-        shell: bash
         run: |
-          OUT=$(node -e "const a=require('./angular.json');\
-            const app=Object.keys(a.projects).find(p=>a.projects[p].projectType==='application')||Object.keys(a.projects)[0];\
-            const opts=(a.projects[app].architect?.build?.options||(a.projects[app].targets?.build?.options)||{});\
-            const out=opts.outputPath || ('dist/'+app);\
-            process.stdout.write(out)")
-          if [ -d \"$OUT/browser\" ]; then
-            PATH_TO_USE=\"$OUT/browser\"
+          if [ -d "dist/radar-aps/browser" ]; then
+            echo "path=dist/radar-aps/browser" >> $GITHUB_OUTPUT
+            echo "Usando dist: dist/radar-aps/browser"
+            ls -la dist/radar-aps/browser
+          elif [ -d "dist/radar-aps" ]; then
+            echo "path=dist/radar-aps" >> $GITHUB_OUTPUT
+            echo "Usando dist: dist/radar-aps"
+            ls -la dist/radar-aps
           else
-            PATH_TO_USE=\"$OUT\"
+            echo "Erro: Pasta dist não encontrada"
+            ls -la dist/
+            exit 1
           fi
-          echo \"path=$PATH_TO_USE\" >> $GITHUB_OUTPUT
-          echo \"Usando dist: $PATH_TO_USE\"
-          ls -la \"$PATH_TO_USE\"
 
       # SPA fallback para funcionar refresh em rotas
       - name: SPA 404 fallback
