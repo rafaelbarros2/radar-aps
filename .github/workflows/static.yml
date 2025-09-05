@@ -17,66 +17,62 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
 
-      - name: Install deps
+      - name: Install dependencies
         run: |
-          if [ -f package-lock.json ]; then
-            npm ci
-          else
-            npm install
-          fi
+          npm ci
 
-      # Build Angular (ajuste o base-href conforme o nome do repositório)
-      - name: Build Angular
-        run: npx ng build --configuration production --base-href "/radar-aps/"
+      # Se seu projeto usa baseHref diferente, ajuste a flag abaixo.
+      - name: Build Angular (prod)
+        run: |
+          npx ng build --configuration production
 
-      # Detecta a pasta correta do build
-      - name: Set dist path
-        id: dist
+      - name: Resolve dist path (Angular SPA/SSR)
+        id: distpath
         shell: bash
         run: |
-          PROJECT=$(node -e "const a=require('./angular.json');console.log(Object.keys(a.projects).find(p=>a.projects[p].projectType==='application')||Object.keys(a.projects)[0])")
-          PROJECT_LOWER=$(echo "$PROJECT" | tr '[:upper:]' '[:lower:]')
-          
-          echo "Projeto detectado: $PROJECT"
-          echo "Pasta esperada: dist/$PROJECT_LOWER"
-          echo "Verificando estrutura de dist/:"
-          ls -la dist/
-          
-          if [ -d "dist/$PROJECT_LOWER/browser" ]; then
-            echo "path=dist/$PROJECT_LOWER/browser" >> $GITHUB_OUTPUT
-            echo "Usando dist: dist/$PROJECT_LOWER/browser"
-          elif [ -d "dist/$PROJECT_LOWER" ]; then
-            echo "path=dist/$PROJECT_LOWER" >> $GITHUB_OUTPUT
-            echo "Usando dist: dist/$PROJECT_LOWER"
+          set -euo pipefail
+
+          # Tenta ler o "application" do angular.json; se não achar, pega o primeiro projeto
+          PROJECT="$(node -e "try{const a=require('./angular.json');const k=Object.keys(a.projects||{});if(!k.length){process.exit(2)}const p=k.find(p=>a.projects[p]?.projectType==='application')||k[0];process.stdout.write(p);}catch(e){process.exit(3)}" || true)"
+
+          # Candidatos de saída
+          C1=""
+          C2=""
+          if [[ -n "${PROJECT}" ]]; then
+            [[ -d "dist/${PROJECT}/browser" ]] && C1="dist/${PROJECT}/browser"
+            [[ -d "dist/${PROJECT}"       ]] && C2="dist/${PROJECT}"
+          fi
+
+          # Fallback com find (SSR -> 'browser' primeiro; depois qualquer 'dist/*')
+          F1="$(find dist -type d -path "dist/*/browser" -print -quit 2>/dev/null || true)"
+          F2="$(find dist -maxdepth 1 -mindepth 1 -type d -print -quit 2>/dev/null || true)"
+
+          # Escolha final por ordem de preferência
+          PATH_OUT="${C1:-${C2:-${F1:-${F2}}}}"
+
+          if [[ -n "${PATH_OUT}" && -d "${PATH_OUT}" ]]; then
+            echo "path=${PATH_OUT}" >> "$GITHUB_OUTPUT"
+            echo "Detected dist path: ${PATH_OUT}"
           else
-            echo "Erro: Pasta dist não encontrada para projeto $PROJECT"
-            echo "Conteúdo completo de dist/:"
-            ls -R dist/
+            echo "Nenhuma pasta dist encontrada. Conteúdo de dist/:" >&2
+            ls -R dist || true
             exit 1
           fi
 
-      # SPA fallback para funcionar refresh em rotas
-      - name: SPA 404 fallback
-        shell: bash
-        run: |
-          if [ -f "${{ steps.dist.outputs.path }}/index.html" ]; then
-            cp "${{ steps.dist.outputs.path }}/index.html" "${{ steps.dist.outputs.path }}/404.html"
-          else
-            echo "index.html não encontrado em ${{ steps.dist.outputs.path }}"
-            exit 1
-          fi
-
-      - uses: actions/upload-pages-artifact@v3
+      - name: Upload artifact to Pages
+        uses: actions/upload-pages-artifact@v3
         with:
-          path: "${{ steps.dist.outputs.path }}"
+          path: ${{ steps.distpath.outputs.path }}
 
   deploy:
     needs: build
@@ -85,5 +81,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - id: deployment
+      - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4
