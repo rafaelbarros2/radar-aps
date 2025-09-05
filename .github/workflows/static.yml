@@ -10,13 +10,12 @@ permissions:
   pages: write
   id-token: write
 
-concurrency:
-  group: "pages"
-  cancel-in-progress: true
-
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,20 +28,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # Base href automático para https://<user>.github.io/<repo>/
       - name: Build Angular
         env:
           REPO_NAME: ${{ github.event.repository.name }}
         run: |
           npx ng build --configuration production --base-href "/${REPO_NAME}/"
 
-      # Setup Pages with enablement parameter
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-        with:
-          enablement: true
-
-      - name: Resolve dist path (radar-aps)
+      - name: Resolve dist path
         id: distpath
         shell: bash
         run: |
@@ -60,18 +52,11 @@ jobs:
           echo "path=$FINAL" >> "$GITHUB_OUTPUT"
           echo "Detected dist path: $FINAL"
 
-      - name: Upload artifact to Pages
+      - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: ${{ steps.distpath.outputs.path }}
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
