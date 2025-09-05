@@ -33,30 +33,30 @@ jobs:
             npm install
           fi
 
-      # Ajuste o base-href ao nome do seu repo
+      # Build Angular (ajuste o base-href conforme o nome do repositório)
       - name: Build Angular
         run: npx ng build --configuration production --base-href "/radar-aps/"
 
-      # Descobre a pasta correta do build (SSR vs SPA)
+      # Detecta a pasta correta lendo o angular.json
       - name: Detect dist path
         id: dist
         shell: bash
         run: |
-          PROJECT=$(node -e "const a=require('./angular.json');console.log(Object.keys(a.projects).find(p=>a.projects[p].projectType==='application')||Object.keys(a.projects)[0])")
-          if [ -d "dist/$PROJECT/browser" ]; then
-            echo "path=dist/$PROJECT/browser" >> $GITHUB_OUTPUT
-          elif [ -d "dist/$PROJECT" ]; then
-            echo "path=dist/$PROJECT" >> $GITHUB_OUTPUT
+          OUT=$(node -e "const a=require('./angular.json');\
+            const app=Object.keys(a.projects).find(p=>a.projects[p].projectType==='application')||Object.keys(a.projects)[0];\
+            const opts=(a.projects[app].architect?.build?.options||(a.projects[app].targets?.build?.options)||{});\
+            const out=opts.outputPath || ('dist/'+app);\
+            process.stdout.write(out)")
+          if [ -d \"$OUT/browser\" ]; then
+            PATH_TO_USE=\"$OUT/browser\"
           else
-            echo "Nenhuma pasta dist encontrada. Conteúdo de dist/:" && ls -R dist || true
-            exit 1
+            PATH_TO_USE=\"$OUT\"
           fi
+          echo \"path=$PATH_TO_USE\" >> $GITHUB_OUTPUT
+          echo \"Usando dist: $PATH_TO_USE\"
+          ls -la \"$PATH_TO_USE\"
 
-      # (opcional) Mostra o conteúdo para depuração
-      - name: Show build output
-        run: ls -la "${{ steps.dist.outputs.path }}"
-
-      # SPA fallback seguro (só copia se existir index.html)
+      # SPA fallback para funcionar refresh em rotas
       - name: SPA 404 fallback
         shell: bash
         run: |
@@ -64,7 +64,6 @@ jobs:
             cp "${{ steps.dist.outputs.path }}/index.html" "${{ steps.dist.outputs.path }}/404.html"
           else
             echo "index.html não encontrado em ${{ steps.dist.outputs.path }}"
-            ls -R dist || true
             exit 1
           fi
 
