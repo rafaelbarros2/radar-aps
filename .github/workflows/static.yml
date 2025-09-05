@@ -36,10 +36,11 @@ jobs:
         run: |
           npx ng build --configuration production --base-href "/${REPO_NAME}/"
 
-      # Se o Pages já estiver habilitado em Settings -> Pages (Source: GitHub Actions),
-      # não precisamos do enablement via API. Este passo apenas configura o ambiente.
+      # Setup Pages with enablement parameter
       - name: Setup Pages
         uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - name: Resolve dist path (radar-aps)
         id: distpath
