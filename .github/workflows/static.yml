@@ -32,31 +32,28 @@ jobs:
       - name: Build Angular
         run: |
           npx ng build --configuration production
-          # Se precisar para GitHub Pages em subpasta: --base-href "/<repo>/"
+          # Se for repositório em subpasta no GitHub Pages, adicione:
+          # npx ng build --configuration production --base-href "/<repo>/"
 
-      - name: Resolve dist path from angular.json
+      - name: Resolve dist path (radar-aps)
         id: distpath
         shell: bash
         run: |
           set -euo pipefail
-          DIST_DIR=$(node -p "(() => {
-            const a = require('./angular.json');
-            const p = Object.keys(a.projects).find(k => a.projects[k]?.projectType==='application') || Object.keys(a.projects)[0];
-            return (a.projects[p]?.architect?.build?.options?.outputPath) || ('dist/' + p);
-          })()")
+          DIST_DIR="dist/radar-aps"
 
-          if [ -d \"$DIST_DIR/browser\" ]; then
-            FINAL=\"$DIST_DIR/browser\"
-          elif [ -d \"$DIST_DIR\" ]; then
-            FINAL=\"$DIST_DIR\"
+          if [ -d "$DIST_DIR/browser" ]; then
+            FINAL="$DIST_DIR/browser"
+          elif [ -d "$DIST_DIR" ]; then
+            FINAL="$DIST_DIR"
           else
-            echo \"Nenhuma pasta dist encontrada. Conteúdo de dist/:\" >&2
+            echo "Nenhuma pasta dist encontrada. Conteúdo de dist/:" >&2
             ls -R dist || true
             exit 1
           fi
 
-          echo \"path=$FINAL\" >> \"$GITHUB_OUTPUT\"
-          echo \"Detected dist path: $FINAL\"
+          echo "path=$FINAL" >> "$GITHUB_OUTPUT"
+          echo "Detected dist path: $FINAL"
 
       - name: Upload artifact to Pages
         uses: actions/upload-pages-artifact@v3
