@@ -1,0 +1,64 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: var(--bg, #f6f7fb);
+}
+
+/* Custom styling for PrimeNG components */
+:host ::ng-deep .p-dropdown {
+  font-size: 0.875rem;
+}
+
+:host ::ng-deep .p-dropdown-panel .p-dropdown-items .p-dropdown-item {
+  font-size: 0.875rem;
+  padding: 0.5rem 0.75rem;
+}
+
+:host ::ng-deep .p-inputtext {
+  font-size: 0.875rem;
+}
+
+/* Table customizations */
+:host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
+  background-color: #f9fafb;
+  color: #374151;
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0.75rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+  font-size: 0.875rem;
+  padding: 0.75rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Tag styling */
+:host ::ng-deep .p-tag.p-tag-danger {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  padding: 0.25rem 0.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .sticky.top-0 {
+    position: relative;
+  }
+  
+  :host ::ng-deep .p-datatable .p-datatable-wrapper {
+    overflow-x: auto;
+  }
+  
+  :host ::ng-deep .p-dropdown {
+    width: 100%;
+  }
+}

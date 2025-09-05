@@ -1,0 +1,73 @@
+/* Custom PrimeNG table styling */
+::ng-deep .p-table {
+  background: #ffffff !important;
+  color: #374151 !important;
+}
+
+::ng-deep .p-table .p-table-thead > tr > th {
+  background: #f8fafc !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  font-weight: 600 !important;
+  color: #374151 !important;
+  padding: 0.75rem !important;
+}
+
+::ng-deep .p-table .p-table-tbody > tr {
+  background: #ffffff !important;
+  color: #374151 !important;
+  transition: background-color 0.2s;
+}
+
+::ng-deep .p-table .p-table-tbody > tr > td {
+  background: #ffffff !important;
+  color: #374151 !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+  padding: 0.75rem !important;
+}
+
+::ng-deep .p-table .p-table-tbody > tr:hover {
+  background: #f8fafc !important;
+}
+
+::ng-deep .p-table .p-table-tbody > tr:hover > td {
+  background: #f8fafc !important;
+}
+
+/* Chart container styling */
+.chart-container {
+  position: relative;
+  width: 100%;
+  height: 250px;
+}
+
+/* Custom scrollbar for better UX */
+.overflow-x-auto::-webkit-scrollbar {
+  height: 6px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 640px) {
+  ::ng-deep .p-table .p-table-thead > tr > th {
+    padding: 0.5rem !important;
+    font-size: 0.75rem !important;
+  }
+  
+  ::ng-deep .p-table .p-table-tbody > tr > td {
+    padding: 0.5rem !important;
+    font-size: 0.75rem !important;
+  }
+}

@@ -40,3 +40,12 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# AI-generated files and temporary files
+*.md
+!README.md
+CLAUDE.md
+html.txt
+QWEN.md
+.claude/
+*.tmp

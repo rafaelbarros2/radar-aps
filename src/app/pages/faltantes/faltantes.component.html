@@ -1,0 +1,248 @@
+<!-- Header -->
+<div class="sticky top-0 bg-white border-b border-gray-200 z-50 mb-6">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center gap-3 justify-between">
+    <div class="flex items-center gap-2 text-lg font-bold">
+      <i class="pi pi-list text-blue-600"></i>
+      Faltantes por Indicador
+    </div>
+    <div class="flex items-center gap-2">
+      <p-dropdown 
+        [options]="blocoOptions" 
+        [(ngModel)]="state.bloco" 
+        (onChange)="onBlocoChange()"
+        placeholder="Selecione o bloco"
+        styleClass="text-sm">
+      </p-dropdown>
+      
+      <p-dropdown 
+        [options]="indicadores" 
+        [(ngModel)]="state.indicador" 
+        (onChange)="onIndicadorChange()"
+        optionLabel="nome" 
+        optionValue="id"
+        placeholder="Selecione o indicador"
+        styleClass="text-sm min-w-[260px]">
+      </p-dropdown>
+    </div>
+  </div>
+</div>
+
+<div class="max-w-7xl mx-auto p-4 space-y-6">
+  <!-- KPIs -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="bg-white rounded-xl shadow p-4 border border-gray-200">
+      <div class="text-sm text-gray-500">Elegíveis</div>
+      <div class="text-2xl font-bold">{{ kpis.elegiveis }}</div>
+    </div>
+    <div class="bg-white rounded-xl shadow p-4 border border-gray-200">
+      <div class="text-sm text-gray-500">Em dia</div>
+      <div class="text-2xl font-bold text-green-700">{{ kpis.emDia }}</div>
+    </div>
+    <div class="bg-white rounded-xl shadow p-4 border border-gray-200">
+      <div class="text-sm text-gray-500">Faltando</div>
+      <div class="text-2xl font-bold text-red-700">{{ kpis.faltando }}</div>
+    </div>
+  </div>
+
+  <!-- Chips por equipe -->
+  <div class="bg-white rounded-xl shadow p-4 border border-gray-200">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-base font-semibold flex items-center gap-2">
+        <i class="pi pi-users text-blue-600"></i> Equipes (faltantes)
+      </h2>
+      <button 
+        type="button"
+        class="text-sm text-blue-700 hover:underline"
+        (click)="onLimparEquipeClick()">
+        Limpar seleção
+      </button>
+    </div>
+    
+    <div class="flex flex-wrap gap-2" *ngIf="equipeChips.length > 0; else noEquipes">
+      <button 
+        type="button"
+        *ngFor="let chip of equipeChips"
+        (click)="onEquipeChipClick(chip)"
+        class="px-3 py-2 rounded-lg border border-gray-300 bg-blue-50 text-blue-800 text-sm font-semibold hover:bg-blue-100 transition-colors"
+        [class.ring-2]="chip.ativo"
+        [class.ring-blue-500]="chip.ativo">
+        {{ chip.nome }}
+        <span class="ml-2 px-2 py-0.5 bg-white rounded-full border text-blue-700">
+          {{ chip.count }}
+        </span>
+      </button>
+    </div>
+    
+    <ng-template #noEquipes>
+      <div class="text-sm text-gray-500">Nenhuma equipe com faltantes para este indicador.</div>
+    </ng-template>
+  </div>
+
+  <!-- Filtros avançados -->
+  <div class="bg-white rounded-xl shadow p-4 border border-gray-200">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-base font-semibold flex items-center gap-2">
+        <i class="pi pi-filter"></i> Filtros
+      </h2>
+      <div class="flex items-center gap-2">
+        <button 
+          type="button"
+          class="text-sm px-3 py-2 rounded-lg border"
+          (click)="onLimparFiltrosClick()">
+          Limpar filtros
+        </button>
+      </div>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-6 gap-3">
+      <div>
+        <label class="block text-sm font-medium mb-1">Período</label>
+        <p-dropdown 
+          [options]="periodoOptions" 
+          [(ngModel)]="state.filtros.periodo" 
+          (onChange)="onFiltroChange()"
+          styleClass="w-full text-sm">
+        </p-dropdown>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium mb-1">UBS</label>
+        <p-dropdown 
+          [options]="ubsOptions" 
+          [(ngModel)]="state.filtros.ubs" 
+          (onChange)="onFiltroChange()"
+          styleClass="w-full text-sm">
+        </p-dropdown>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium mb-1">Equipe</label>
+        <p-dropdown 
+          [options]="equipeOptions" 
+          [(ngModel)]="state.filtros.equipe" 
+          (onChange)="onFiltroChange()"
+          styleClass="w-full text-sm">
+        </p-dropdown>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium mb-1">ACS</label>
+        <p-dropdown 
+          [options]="acsOptions" 
+          [(ngModel)]="state.filtros.acs" 
+          (onChange)="onFiltroChange()"
+          styleClass="w-full text-sm">
+        </p-dropdown>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium mb-1">Sexo</label>
+        <p-dropdown 
+          [options]="sexoOptions" 
+          [(ngModel)]="state.filtros.sexo" 
+          (onChange)="onFiltroChange()"
+          styleClass="w-full text-sm">
+        </p-dropdown>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium mb-1">Faixa etária</label>
+        <p-dropdown 
+          [options]="faixaEtariaOptions" 
+          [(ngModel)]="state.filtros.faixa" 
+          (onChange)="onFiltroChange()"
+          styleClass="w-full text-sm">
+        </p-dropdown>
+      </div>
+      
+      <div class="lg:col-span-2">
+        <label class="block text-sm font-medium mb-1">Condição</label>
+        <p-dropdown 
+          [options]="condicaoOptions" 
+          [(ngModel)]="state.filtros.cond" 
+          (onChange)="onFiltroChange()"
+          styleClass="w-full text-sm">
+        </p-dropdown>
+      </div>
+      
+      <div class="lg:col-span-2">
+        <label class="block text-sm font-medium mb-1">Ordenar por</label>
+        <p-dropdown 
+          [options]="ordenacaoOptions" 
+          [(ngModel)]="state.filtros.ordenar" 
+          (onChange)="onFiltroChange()"
+          styleClass="w-full text-sm">
+        </p-dropdown>
+      </div>
+      
+      <div class="lg:col-span-2">
+        <label class="block text-sm font-medium mb-1">Buscar</label>
+        <input 
+          pInputText 
+          type="text" 
+          [(ngModel)]="state.filtros.busca" 
+          (ngModelChange)="onFiltroChange()"
+          placeholder="Nome / CNS" 
+          class="w-full text-sm" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabela nominal -->
+  <div class="bg-white rounded-xl shadow p-4 border border-gray-200">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-base font-semibold flex items-center gap-2">
+        <i class="pi pi-table text-blue-600"></i> Lista de pessoas faltantes
+      </h2>
+      <div class="text-sm text-gray-600" [innerHTML]="infoSelecao"></div>
+    </div>
+    
+    <p-table 
+      [value]="pessoasVisiveis" 
+      [scrollable]="true" 
+      scrollHeight="400px"
+      styleClass="p-datatable-sm">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Nome</th>
+          <th>Sexo</th>
+          <th>Idade</th>
+          <th>UBS</th>
+          <th>Equipe</th>
+          <th>ACS</th>
+          <th>Observação</th>
+          <th>Status</th>
+          <th>Atualização</th>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="body" let-pessoa>
+        <tr>
+          <td>{{ pessoa.nome }}</td>
+          <td>{{ pessoa.sexo }}</td>
+          <td>{{ pessoa.idade }}</td>
+          <td>{{ pessoa.ubs }}</td>
+          <td>{{ pessoa.equipe }}</td>
+          <td>{{ pessoa.acs }}</td>
+          <td>{{ getObservacao(pessoa) }}</td>
+          <td>
+            <p-tag 
+              value="Faltando" 
+              severity="danger" 
+              styleClass="text-xs">
+            </p-tag>
+          </td>
+          <td>{{ pessoa.atualizacao }}</td>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="9" class="text-center py-4 text-gray-500">
+            Nenhuma pessoa faltante encontrada com os filtros aplicados.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

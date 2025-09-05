@@ -1,0 +1,167 @@
+<div class="p-4">
+  <!-- Page Header -->
+  <div class="space-y-4 mb-6">
+    <!-- Title -->
+    <div>
+      <h1 class="text-xl sm:text-2xl font-black text-gray-900 break-words">
+        Visão Geral — <span class="block sm:inline">{{ municipioSelecionado }}</span>
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-100 text-blue-800 text-xs sm:text-sm font-bold mt-2 sm:mt-0 sm:ml-2">
+          {{ getBlocoBadgeText() }}
+        </span>
+      </h1>
+    </div>
+    
+    <!-- Filters -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+        <span class="text-sm font-bold text-gray-600 whitespace-nowrap">Período</span>
+        <p-dropdown 
+          [options]="filtrosPeriodo" 
+          [(ngModel)]="periodoSelecionado"
+          optionLabel="label" 
+          optionValue="value"
+          (onChange)="onPeriodoChange()"
+          styleClass="w-full sm:w-48"
+          [style]="{'width': '100%'}"
+        ></p-dropdown>
+      </div>
+      
+      <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+        <span class="text-sm font-bold text-gray-600 whitespace-nowrap">Município</span>
+        <p-dropdown 
+          [options]="filtrosMunicipio" 
+          [(ngModel)]="municipioSelecionado"
+          optionLabel="label" 
+          optionValue="value"
+          (onChange)="onMunicipioChange()"
+          styleClass="w-full sm:w-48"
+          [style]="{'width': '100%'}"
+        ></p-dropdown>
+      </div>
+      
+      <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+        <span class="text-sm font-bold text-gray-600 whitespace-nowrap">Bloco</span>
+        <p-dropdown 
+          [options]="filtrosBlocos" 
+          [(ngModel)]="blocoSelecionado"
+          optionLabel="label" 
+          optionValue="value"
+          (onChange)="onBlocoChange()"
+          styleClass="w-full sm:w-48"
+          [style]="{'width': '100%'}"
+        >
+          <ng-template pTemplate="selectedItem" let-option>
+            {{ option.label }} ({{ option.count }})
+          </ng-template>
+          <ng-template pTemplate="item" let-option>
+            {{ option.label }} ({{ option.count }})
+          </ng-template>
+        </p-dropdown>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPIs Grid -->
+  <section class="flex flex-wrap gap-4 lg:gap-6 mb-8" aria-label="Indicadores principais">
+    <app-kpi-card 
+      *ngFor="let indicador of indicadores" 
+      [indicador]="indicador"
+      [status]="getStatusIndicador(indicador)"
+    ></app-kpi-card>
+  </section>
+
+  <!-- Tables Section -->
+  <section class="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-1 xl:grid-cols-3 lg:gap-4">
+    <!-- Equipes Pendentes -->
+    <div class="xl:col-span-2 bg-white border border-gray-200 rounded-2xl shadow-sm p-3 sm:p-4">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4">
+        <h3 class="text-base sm:text-lg font-bold text-gray-900">Equipes com metas pendentes</h3>
+        <span class="p-input-icon-left w-full sm:w-auto">
+          <i class="pi pi-search"></i>
+          <input 
+            pInputText 
+            type="text" 
+            [(ngModel)]="filtroEquipe"
+            (ngModelChange)="onFiltroEquipeChange()"
+            placeholder="Filtrar por UBS/Equipe..."
+            class="w-full sm:w-64"
+          />
+        </span>
+      </div>
+      
+      <div class="overflow-x-auto">
+        <p-table 
+          [value]="equipesPendentes" 
+          [scrollable]="true" 
+          scrollHeight="300px"
+          [style]="{'min-width': '600px'}"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th class="text-left p-2 sm:p-3 text-xs sm:text-sm">UBS / Equipe</th>
+              <th class="text-left p-2 sm:p-3 text-xs sm:text-sm">Indicador</th>
+              <th class="text-left p-2 sm:p-3 text-xs sm:text-sm">Meta</th>
+              <th class="text-left p-2 sm:p-3 text-xs sm:text-sm">Atual</th>
+              <th class="text-left p-2 sm:p-3 text-xs sm:text-sm">Status</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-item>
+            <tr class="border-b border-gray-100">
+              <td class="p-2 sm:p-3 text-xs sm:text-sm font-medium">{{ item.equipe }}</td>
+              <td class="p-2 sm:p-3 text-xs sm:text-sm">{{ item.indicador.label }}</td>
+              <td class="p-2 sm:p-3 text-xs sm:text-sm">{{ dashboardService.formatarMeta(item.indicador.meta, item.indicador.unit) }}</td>
+              <td class="p-2 sm:p-3 text-xs sm:text-sm font-medium">{{ dashboardService.formatarValor(item.indicador.value, item.indicador.unit) }}</td>
+              <td class="p-2 sm:p-3">
+                <p-tag 
+                  [value]="item.status.label" 
+                  [severity]="getStatusSeverity(item.status.cls)"
+                  styleClass="text-xs"
+                ></p-tag>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+
+    <!-- Resumo de Metas -->
+    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-3 sm:p-4">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 mb-4">
+        <h3 class="text-base sm:text-lg font-bold text-gray-900">Resumo de metas</h3>
+        <small class="text-xs sm:text-sm text-gray-500">do bloco selecionado</small>
+      </div>
+      
+      <div class="overflow-x-auto">
+        <p-table 
+          [value]="indicadores" 
+          [scrollable]="true" 
+          scrollHeight="300px"
+          [style]="{'min-width': '400px'}"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th class="text-left p-2 sm:p-3 text-xs sm:text-sm">Indicador</th>
+              <th class="text-left p-2 sm:p-3 text-xs sm:text-sm">Meta</th>
+              <th class="text-left p-2 sm:p-3 text-xs sm:text-sm">Atual</th>
+              <th class="text-left p-2 sm:p-3 text-xs sm:text-sm">Status</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-indicador>
+            <tr class="border-b border-gray-100">
+              <td class="p-2 sm:p-3 text-xs sm:text-sm">{{ indicador.label }}</td>
+              <td class="p-2 sm:p-3 text-xs sm:text-sm">{{ dashboardService.formatarMeta(indicador.meta, indicador.unit) }}</td>
+              <td class="p-2 sm:p-3 text-xs sm:text-sm font-medium">{{ dashboardService.formatarValor(indicador.value, indicador.unit) }}</td>
+              <td class="p-2 sm:p-3">
+                <p-tag 
+                  [value]="getStatusIndicador(indicador).label" 
+                  [severity]="getStatusSeverity(getStatusIndicador(indicador).cls)"
+                  styleClass="text-xs"
+                ></p-tag>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+  </section>
+</div>

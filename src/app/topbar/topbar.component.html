@@ -1,0 +1,38 @@
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="brand">
+      <div class="badge" aria-hidden="true"></div>
+      Painel Municipal
+    </div>
+    
+    <p-breadcrumb 
+      [model]="breadcrumbItems" 
+      [home]="home"
+      class="breadcrumb-nav"
+    ></p-breadcrumb>
+  </div>
+
+  <div class="header-actions">
+    <p-button
+      *ngIf="showBurgerMenu"
+      icon="pi pi-bars"
+      [text]="true"
+      class="burger-btn"
+      (onClick)="onBurgerClick()"
+      [attr.aria-label]="'Abrir/fechar menu'"
+    ></p-button>
+    
+    <p-button
+      label="Exportar CSV"
+      icon="pi pi-download"
+      severity="secondary"
+      (onClick)="onExportClick()"
+    ></p-button>
+    
+    <p-button
+      label="Publicar visão"
+      icon="pi pi-send"
+      (onClick)="onPublishClick()"
+    ></p-button>
+  </div>
+</header>

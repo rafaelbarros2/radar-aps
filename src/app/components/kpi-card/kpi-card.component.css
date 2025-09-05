@@ -1,0 +1,16 @@
+/* Status colors for dots */
+.ok .dot {
+  background-color: #22c55e; /* Tailwind green-500 */
+}
+
+.warn .dot {
+  background-color: #ca8a04; /* Tailwind yellow-600 */
+}
+
+.bad .dot {
+  background-color: #ef4444; /* Tailwind red-500 */
+}
+
+.neutral .dot {
+  background-color: #9ca3af; /* Tailwind gray-400 */
+}

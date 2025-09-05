@@ -1,0 +1,54 @@
+<main class="max-w-6xl mx-auto p-6 space-y-8">
+  <h1 class="text-2xl font-bold">Qualidade APS</h1>
+
+  <!-- KPIs -->
+  <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <p-card *ngFor="let kpi of kpis" class="shadow-sm"
+      [ngClass]="{
+        'border-l-4 border-l-green-500': getStatus(kpi) === 'success',
+        'border-l-4 border-l-yellow-500': getStatus(kpi) === 'warning',
+        'border-l-4 border-l-red-500': getStatus(kpi) === 'danger'
+      }">
+      <ng-template pTemplate="content">
+        <div class="space-y-2">
+          <h2 class="text-sm font-semibold text-gray-500">{{ kpi.name }}</h2>
+          <p class="text-2xl font-bold text-purple-700">{{ kpi.currentValue }}{{ kpi.unit }}</p>
+          <p class="text-xs text-gray-500">Meta: {{ kpi.targetValue }}{{ kpi.unit }}</p>
+        </div>
+      </ng-template>
+    </p-card>
+  </section>
+
+  <!-- Indicadores detalhados -->
+  <section>
+    <p-card class="shadow-sm">
+      <ng-template pTemplate="content">
+        <p class="text-gray-700 mb-4">
+          Indicadores do componente de Qualidade da APS <strong>(15 indicadores)</strong>.
+        </p>
+        <ul class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <li *ngFor="let ind of indicators"
+              class="p-4 rounded-lg bg-purple-50 border border-purple-200">
+            <h3 class="font-semibold">{{ ind.name }}</h3>
+            <p class="text-sm">Meta ≥ {{ ind.targetValue }}{{ ind.unit }} | Atual: {{ ind.currentValue }}{{ ind.unit }}</p>
+          </li>
+        </ul>
+      </ng-template>
+    </p-card>
+  </section>
+
+  <!-- Gráfico -->
+  <section>
+    <p-card class="shadow-sm">
+      <ng-template pTemplate="header">
+        <h2 class="text-base font-semibold p-4">Tendência de Indicadores de Qualidade</h2>
+      </ng-template>
+      <ng-template pTemplate="content">
+        <div class="chart-container" style="position: relative; height:400px;">
+          <canvas #chartCanvas></canvas>
+        </div>
+      </ng-template>
+    </p-card>
+  </section>
+</main>
+

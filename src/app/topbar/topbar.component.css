@@ -1,0 +1,143 @@
+:host {
+  --bg: #f6f7fb;
+  --surface: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --border: #e5e7eb;
+  --primary: #2563eb;
+  --shadow: 0 1px 2px rgba(0,0,0,.08), 0 14px 32px -16px rgba(15,23,42,.25);
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: saturate(180%) blur(6px);
+  background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.86));
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 1px 0 rgba(15,23,42,.03);
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  grid-column: 1 / -1;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-weight: 800;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--primary), #60a5fa);
+  box-shadow: var(--shadow);
+  flex-shrink: 0;
+}
+
+.breadcrumb-nav {
+  flex: 1;
+  min-width: 0;
+}
+
+.breadcrumb-nav ::ng-deep .p-breadcrumb {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.breadcrumb-nav ::ng-deep .p-breadcrumb-list {
+  margin: 0;
+  padding: 0;
+  flex-wrap: wrap;
+}
+
+.breadcrumb-nav ::ng-deep .p-menuitem-link {
+  color: var(--muted);
+  text-decoration: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.breadcrumb-nav ::ng-deep .p-menuitem-link:hover {
+  background: var(--primary-weak, #eef2ff);
+  color: var(--primary);
+}
+
+.breadcrumb-nav ::ng-deep .p-breadcrumb-chevron {
+  color: var(--muted);
+  margin: 0 0.5rem;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.burger-btn {
+  display: none !important;
+}
+
+::ng-deep .p-button {
+  border-radius: 10px;
+  font-weight: 600;
+  padding: 0.5rem 0.75rem;
+  transition: all 0.2s ease;
+}
+
+::ng-deep .p-button.p-button-secondary {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+::ng-deep .p-button.p-button-secondary:hover {
+  background: #f8fafc;
+  border-color: var(--primary);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .burger-btn {
+    display: inline-flex !important;
+  }
+  
+  .topbar-left {
+    gap: 1rem;
+  }
+  
+  .breadcrumb-nav {
+    display: none;
+  }
+  
+  .header-actions {
+    gap: 0.25rem;
+  }
+  
+  .header-actions ::ng-deep .p-button .p-button-label {
+    display: none;
+  }
+  
+  .header-actions ::ng-deep .p-button {
+    padding: 0.5rem;
+    min-width: auto;
+  }
+}

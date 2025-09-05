@@ -1,0 +1,83 @@
+<aside 
+  class="sidebar"
+  [class.collapsed]="isCollapsed"
+  [class.open]="isOpen"
+  [attr.aria-label]="'Menu lateral'"
+>
+  <div class="sidebar-content">
+    <div class="nav-title" *ngIf="!isCollapsed">Navegar</div>
+    
+    <nav class="nav" role="navigation">
+      <a 
+        *ngFor="let item of menuItems" 
+        [routerLink]="item.route"
+        class="item"
+        routerLinkActive="active"
+        (click)="onMenuItemClick(item)"
+        [attr.title]="isCollapsed ? item.label : null"
+      >
+        <app-icon 
+          *ngIf="item.icon" 
+          [name]="item.icon"
+        ></app-icon>
+        <span *ngIf="!isCollapsed" class="item-label">{{ item.label }}</span>
+      </a>
+    </nav>
+
+    <div class="nav-title" *ngIf="!isCollapsed" style="margin-top: 1rem">
+      Blocos de Indicadores
+    </div>
+    
+    <section 
+      class="group" 
+      [attr.aria-expanded]="indicatorsGroup.expanded"
+      *ngIf="!isCollapsed"
+    >
+      <div 
+        class="group-header" 
+        role="button" 
+        tabindex="0" 
+        (click)="toggleGroup(indicatorsGroup)"
+        (keydown.enter)="toggleGroup(indicatorsGroup)"
+        (keydown.space)="toggleGroup(indicatorsGroup)"
+        [attr.aria-expanded]="indicatorsGroup.expanded"
+      >
+        <div class="left">
+          <app-icon 
+            *ngIf="indicatorsGroup.icon" 
+            [name]="indicatorsGroup.icon"
+          ></app-icon>
+          <strong>{{ indicatorsGroup.label }}</strong>
+        </div>
+        <app-icon 
+          name="chevron-right"
+          class="chev" 
+          [class.rotated]="indicatorsGroup.expanded"
+        ></app-icon>
+      </div>
+      
+      <div 
+        class="submenu" 
+        [class.expanded]="indicatorsGroup.expanded"
+      >
+        <a 
+          *ngFor="let child of indicatorsGroup.children" 
+          [routerLink]="child.route"
+          class="item"
+          routerLinkActive="active"
+          (click)="onMenuItemClick(child)"
+        >
+          {{ child.label }}
+          <span *ngIf="child.badge" class="pill">{{ child.badge }}</span>
+        </a>
+      </div>
+    </section>
+
+    <div 
+      *ngIf="!isCollapsed" 
+      class="sidebar-footer"
+    >
+      Protótipo • Visão Geral
+    </div>
+  </div>
+</aside>
