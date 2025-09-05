@@ -40,6 +40,7 @@ jobs:
       # Detecta a pasta correta do build
       - name: Set dist path
         id: dist
+        shell: bash
         run: |
           if [ -d "dist/radar-aps/browser" ]; then
             echo "path=dist/radar-aps/browser" >> $GITHUB_OUTPUT
@@ -51,6 +52,7 @@ jobs:
             ls -la dist/radar-aps
           else
             echo "Erro: Pasta dist não encontrada"
+            echo "Conteúdo de dist/:"
             ls -la dist/
             exit 1
           fi
