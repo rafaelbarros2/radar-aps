@@ -17,7 +17,6 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,46 +27,36 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        run: |
-          npm ci
+        run: npm ci
 
-      # Se seu projeto usa baseHref diferente, ajuste a flag abaixo.
-      - name: Build Angular (prod)
+      - name: Build Angular
         run: |
           npx ng build --configuration production
+          # Se precisar para GitHub Pages em subpasta: --base-href "/<repo>/"
 
-      - name: Resolve dist path (Angular SPA/SSR)
+      - name: Resolve dist path from angular.json
         id: distpath
         shell: bash
         run: |
           set -euo pipefail
+          DIST_DIR=$(node -p "(() => {
+            const a = require('./angular.json');
+            const p = Object.keys(a.projects).find(k => a.projects[k]?.projectType==='application') || Object.keys(a.projects)[0];
+            return (a.projects[p]?.architect?.build?.options?.outputPath) || ('dist/' + p);
+          })()")
 
-          # Tenta ler o "application" do angular.json; se não achar, pega o primeiro projeto
-          PROJECT="$(node -e "try{const a=require('./angular.json');const k=Object.keys(a.projects||{});if(!k.length){process.exit(2)}const p=k.find(p=>a.projects[p]?.projectType==='application')||k[0];process.stdout.write(p);}catch(e){process.exit(3)}" || true)"
-
-          # Candidatos de saída
-          C1=""
-          C2=""
-          if [[ -n "${PROJECT}" ]]; then
-            [[ -d "dist/${PROJECT}/browser" ]] && C1="dist/${PROJECT}/browser"
-            [[ -d "dist/${PROJECT}"       ]] && C2="dist/${PROJECT}"
-          fi
-
-          # Fallback com find (SSR -> 'browser' primeiro; depois qualquer 'dist/*')
-          F1="$(find dist -type d -path "dist/*/browser" -print -quit 2>/dev/null || true)"
-          F2="$(find dist -maxdepth 1 -mindepth 1 -type d -print -quit 2>/dev/null || true)"
-
-          # Escolha final por ordem de preferência
-          PATH_OUT="${C1:-${C2:-${F1:-${F2}}}}"
-
-          if [[ -n "${PATH_OUT}" && -d "${PATH_OUT}" ]]; then
-            echo "path=${PATH_OUT}" >> "$GITHUB_OUTPUT"
-            echo "Detected dist path: ${PATH_OUT}"
+          if [ -d \"$DIST_DIR/browser\" ]; then
+            FINAL=\"$DIST_DIR/browser\"
+          elif [ -d \"$DIST_DIR\" ]; then
+            FINAL=\"$DIST_DIR\"
           else
-            echo "Nenhuma pasta dist encontrada. Conteúdo de dist/:" >&2
+            echo \"Nenhuma pasta dist encontrada. Conteúdo de dist/:\" >&2
             ls -R dist || true
             exit 1
           fi
+
+          echo \"path=$FINAL\" >> \"$GITHUB_OUTPUT\"
+          echo \"Detected dist path: $FINAL\"
 
       - name: Upload artifact to Pages
         uses: actions/upload-pages-artifact@v3
