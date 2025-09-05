@@ -42,18 +42,24 @@ jobs:
         id: dist
         shell: bash
         run: |
-          if [ -d "dist/radar-aps/browser" ]; then
-            echo "path=dist/radar-aps/browser" >> $GITHUB_OUTPUT
-            echo "Usando dist: dist/radar-aps/browser"
-            ls -la dist/radar-aps/browser
-          elif [ -d "dist/radar-aps" ]; then
-            echo "path=dist/radar-aps" >> $GITHUB_OUTPUT
-            echo "Usando dist: dist/radar-aps"
-            ls -la dist/radar-aps
+          PROJECT=$(node -e "const a=require('./angular.json');console.log(Object.keys(a.projects).find(p=>a.projects[p].projectType==='application')||Object.keys(a.projects)[0])")
+          PROJECT_LOWER=$(echo "$PROJECT" | tr '[:upper:]' '[:lower:]')
+          
+          echo "Projeto detectado: $PROJECT"
+          echo "Pasta esperada: dist/$PROJECT_LOWER"
+          echo "Verificando estrutura de dist/:"
+          ls -la dist/
+          
+          if [ -d "dist/$PROJECT_LOWER/browser" ]; then
+            echo "path=dist/$PROJECT_LOWER/browser" >> $GITHUB_OUTPUT
+            echo "Usando dist: dist/$PROJECT_LOWER/browser"
+          elif [ -d "dist/$PROJECT_LOWER" ]; then
+            echo "path=dist/$PROJECT_LOWER" >> $GITHUB_OUTPUT
+            echo "Usando dist: dist/$PROJECT_LOWER"
           else
-            echo "Erro: Pasta dist não encontrada"
-            echo "Conteúdo de dist/:"
-            ls -la dist/
+            echo "Erro: Pasta dist não encontrada para projeto $PROJECT"
+            echo "Conteúdo completo de dist/:"
+            ls -R dist/
             exit 1
           fi
 
